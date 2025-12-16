@@ -1,0 +1,13 @@
+jupyterlab
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+joblib
+sentence-transformers
+transformers
+chromadb
+nltk
+python-dotenv
+tqdm
