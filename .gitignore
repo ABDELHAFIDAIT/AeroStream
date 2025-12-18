@@ -6,3 +6,4 @@ chroma_db/
 metadata/
 models/
 logs/
+checkpoints/
