@@ -2,68 +2,99 @@ version: '3.8'
 
 services:
 
-  api:
+  # --- SERVICE API (FastAPI) ---
+  fastapi:
     build: ./fastapi
     container_name: aerostream_api
     ports:
       - "8000:8000"
     volumes:
       - ./models:/code/models
-      - ./chroma_db:/code/chroma_db
-      - ./metadata:/code/metadata
       - ./fastapi:/code
     environment:
-      - DB_HOST=${POSTGRES_HOST}
-      - DB_USER=${POSTGRES_USER}
-      - DB_PASS=${POSTGRES_PASSWORD}
-      - DB_NAME=${POSTGRES_DB}       # Ajouté pour cohérence
-      - HF_TOKEN=${HF_TOKEN}
-      # [CORRECTION] Indispensable pour que votre code Python trouve les dossiers montés
-      - CHROMA_DB_PATH=/code/chroma_db
+      # --- CORRECTION ICI : NOMS VARIABLES PYTHON ---
+      # On utilise POSTGRES_USER car database.py cherche os.getenv("POSTGRES_USER")
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=aerostream_db
+      - DB_HOST=postgres
       - MODELS_PATH=/code/models
+    command: python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - postgres
+    networks:
+      - aerostream_net
 
+  # --- Interface Utilisateur (Streamlit) ---
   webapp:
     build: ./app
     container_name: aerostream_webapp
     ports:
       - "8501:8501"
     environment:
-      - API_URL=http://api:8000
+      - API_URL=http://fastapi:8000 
     depends_on:
-      - api
+      - fastapi
     volumes:
       - ./app:/app
-      - ./test:/app/test
+    networks:
+      - aerostream_net
 
+  # --- Base de données ---
   postgres:
     image: postgres:13
     container_name: aerostream_postgres
+    ports:
+      - "5432:5432"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      # --- VALEURS EN DUR ---
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=aerostream_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aerostream_net
 
+  # --- Interface Graphique SQL (pgAdmin) ---
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: aerostream_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@aerostream.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - aerostream_net
+
+  # --- Orchestrateur ---
   airflow:
     build: ./airflow
     container_name: aerostream_airflow
     command: standalone
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      # [CORRECTION CRITIQUE] Utilisation des variables du .env pour l'authentification
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
+      # Connexion mise à jour avec le bon mot de passe
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:Abdelhafid2002_PostgreDocker@postgres/aerostream_db
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW_CONN_FASTAPI_CONN=http://api:8000
+      - AIRFLOW_CONN_FASTAPI_CONN=http://fastapi:8000
     volumes:
-      # Montage du dossier airflow local vers le dossier dags du conteneur
       - ./airflow:/opt/airflow/dags 
       - ./logs:/opt/airflow/logs
     ports:
       - "8080:8080"
     depends_on:
       - postgres
-      - api
+      - fastapi
+    networks:
+      - aerostream_net
 
 volumes:
   postgres_data:
+
+networks:
+  aerostream_net:
+    driver: bridge

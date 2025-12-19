@@ -5,13 +5,8 @@ from datetime import datetime, timezone
 import random
 from faker import Faker
 
-# --- IMPORTS DE VOS MODULES LOCAUX ---
-from pipeline import process_tweets_pipeline
-from database import init_db, get_tweets
+app = FastAPI(title="Fake Tweet Generator API", version="1.0")
 
-app = FastAPI(title="Aerostream Analytics API", version="2.0")
-
-# --- CONFIGURATION DU SIMULATEUR (Code Formateur) ---
 fake = Faker()
 Faker.seed(42)
 
@@ -31,7 +26,6 @@ NEGATIVE_REASONS = [
     'longlines'
 ]
 
-# Modèle de données (Code Formateur)
 class Tweet(BaseModel):
     airline_sentiment_confidence: float
     airline: str
@@ -39,9 +33,7 @@ class Tweet(BaseModel):
     tweet_created: str 
     text: str
 
-# --- FONCTION DE GÉNÉRATION (Code Formateur) ---
 def generate_tweet() -> Tweet:
-    """Génère un tweet réaliste avec la logique du formateur."""
     airline = random.choice(AIRLINES)
     sentiment = random.choices(
         SENTIMENTS,
@@ -59,6 +51,7 @@ def generate_tweet() -> Tweet:
     elif sentiment == 'neutral':
         negativereason = random.choice(NEGATIVE_REASONS) 
 
+   
     handles = {
         'Virgin America': '@VirginAmerica',
         'United': '@united',
@@ -105,40 +98,9 @@ def generate_tweet() -> Tweet:
         text=text
     )
 
-# --- STARTUP EVENT (Votre Code) ---
-@app.on_event("startup")
-async def startup():
-    """Initialisation de la DB au démarrage."""
-    print("🚀 Démarrage de l'API AeroStream v2...")
-    init_db()
-
-# --- ENDPOINTS ---
-
-@app.post("/batch")
+@app.get("/batch", response_model=List[Tweet])
 def get_microbatch(batch_size: int = 10):
-    """
-    Génère des tweets (logique formateur) et les envoie au pipeline (votre logique).
-    """
-    # Validation borne
-    batch_size = min(max(batch_size, 1), 100)
     
-    print(f"📥 Génération de {batch_size} tweets (Simulateur Avancé)...")
-    
-    # 1. Génération des objets Tweet
-    generated_tweets_objects = [generate_tweet() for _ in range(batch_size)]
-    
-    # 2. Conversion en dictionnaires pour votre pipeline.py
-    # Le pipeline s'attend à des dicts, pas des objets Pydantic
-    tweets_dicts = [t.dict() for t in generated_tweets_objects]
-    
-    # 3. Envoi au pipeline (IA + Sauvegarde DB)
-    return process_tweets_pipeline(tweets_dicts)
-
-@app.get("/tweets")
-def read_tweets(limit: int = 50):
-    """Récupère l'historique depuis la base de données."""
-    tweets = get_tweets(limit)
-    return {
-        "total": len(tweets),
-        "tweets": tweets
-    }
+    if not (1 <= batch_size <= 100):
+        batch_size = min(max(batch_size, 1), 100)  
+    return [generate_tweet() for _ in range(batch_size)]
