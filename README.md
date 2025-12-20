@@ -40,7 +40,7 @@ AeroStream/
 ├── logs/
 │
 ├── test/
-│   └── examples.pkl        # exemples des tweets à classifier pour tester le modèle dans streamlit
+│   └── examples.ipynb        # exemples des tweets à classifier pour tester le modèle dans streamlit
 │
 ├── README.md
 │
