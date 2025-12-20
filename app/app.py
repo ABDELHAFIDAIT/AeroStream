@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import plotly.express as px
+from streamlit_autorefresh import st_autorefresh
 
 
 
@@ -13,8 +14,13 @@ st.set_page_config(
 
 
 
+count = st_autorefresh(interval=60 * 1000, key="data_refresh")
+
+
 # Définition de l'URL de l'API
 API_URL = "http://fastapi:8000"
+
+
 
 
 
@@ -59,19 +65,6 @@ def trigger_batch_generation(size=10):
 st.title("AeroStream Analytics Dashboard")
 st.markdown("Surveillance en temps réel de la satisfaction client des compagnies aériennes.")
 st.divider()
-
-
-# SIDEBAR (Génération des Tweets)
-with st.sidebar:
-    st.header("Génération des Tweets")
-    
-    # Bouton pour simuler de l'activité
-    if st.button("Générer 20 Tweets pour simulation"):
-        trigger_batch_generation(20)
-        st.rerun() # Rafraîchit la page immédiatement
-
-    st.divider()
-    st.info("Ce dashboard se connecte à l'API FastAPI, récupère les données stockées dans PostgreSQL et affiche les analyses du modèle Linear SVC.")
 
 
 
@@ -200,4 +193,4 @@ if not df.empty:
             st.info("Aucune raison spécifique identifiée pour l'instant.")
 
 else:
-    st.warning("Aucune donnée disponible. Veuillez cliquer sur 'Générer' dans la barre latérale.")
+    st.warning("En attente de données...")

@@ -77,12 +77,13 @@ services:
     command: standalone
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      # Connexion mise à jour avec le bon mot de passe
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:Abdelhafid2002_PostgreDocker@postgres/aerostream_db
+      # CORRECTION 1 : Mot de passe aligné avec le service postgres (airflow/airflow)
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/aerostream_db
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW_CONN_FASTAPI_CONN=http://fastapi:8000
     volumes:
-      - ./airflow:/opt/airflow/dags 
+      # CORRECTION 2 : On mappe uniquement le sous-dossier dags
+      - ./airflow/dags:/opt/airflow/dags 
       - ./logs:/opt/airflow/logs
     ports:
       - "8080:8080"
@@ -98,3 +99,4 @@ volumes:
 networks:
   aerostream_net:
     driver: bridge
+
