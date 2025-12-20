@@ -21,6 +21,8 @@ API_URL = "http://fastapi:8000"
 
 # --- FONCTIONS UTILITAIRES ---
 
+
+
 # Récupère les tweets depuis l'API FastAPI
 def fetch_data(limit=500):
     try:
