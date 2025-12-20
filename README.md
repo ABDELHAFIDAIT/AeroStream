@@ -6,7 +6,8 @@ AeroStream/
 │
 │
 ├── airflow/
-│   ├── dags.py     # Fichier contenant le dag pour orchestration airflow
+│   ├── dags
+│       └── pipeline_dag.py      # Fichier contenant le dag pour orchestration airflow
 │
 ├── app/
 │   ├── app.py              # Interface Stremlit
