@@ -8,7 +8,6 @@ import plotly.express as px
 # Configuration de la page
 st.set_page_config(
     page_title="AeroStream Analytics",
-    page_icon="✈️",
     layout="wide"
 )
 
@@ -21,6 +20,8 @@ API_URL = "http://fastapi:8000"
 
 
 # --- FONCTIONS UTILITAIRES ---
+
+
 
 # Récupère les tweets depuis l'API FastAPI
 def fetch_data(limit=500):
