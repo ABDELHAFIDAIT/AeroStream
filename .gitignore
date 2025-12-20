@@ -7,3 +7,4 @@ metadata/
 models/
 logs/
 checkpoints/
+app/test/
