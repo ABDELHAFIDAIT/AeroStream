@@ -8,7 +8,6 @@ import plotly.express as px
 # Configuration de la page
 st.set_page_config(
     page_title="AeroStream Analytics",
-    page_icon="✈️",
     layout="wide"
 )
 
