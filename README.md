@@ -148,7 +148,6 @@ Les fonctionnalités clés du tableau de bord incluent :
 ## 👤 Auteur
 Abdelhafid AIT EL MOKHTAR - AI Developper @ YouCode
 
-- [Linkedin](www.linkedin.com/in/abdelhafid-ait-el-mokhtar-670491245)
+- [Linkedin](https://www.linkedin.com/in/abdelhafid-ait-el-mokhtar-670491245)
 
 - [Email](mailto:abdelhafid02002@gmail.com)
-
